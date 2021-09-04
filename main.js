@@ -1,9 +1,11 @@
 
 let inputTitle = document.querySelector('.section__form-input-title');
 let inputAuthor = document.querySelector('.section__form-input-author');
-let formSubmit = document.querySelector('.section__form-submit');
+let formSubmit = document.querySelector('.section__form');
 let mainElem = document.querySelector('.main');
+
 window.onload = getJson('http://localhost:3000/posts').then(result => render(result, mainElem))
+
 function getJson(url) {
     return new Promise((resolve, reject) => {
         let xhr = new XMLHttpRequest();
@@ -23,6 +25,7 @@ function getJson(url) {
         xhr.send();
     });
 };
+
 function saveJson(url, data) {
     return new Promise((resolve, reject) => {
         let xhr = new XMLHttpRequest();
@@ -33,7 +36,7 @@ function saveJson(url, data) {
         xhr.responseType = 'json';
         xhr.onload = () => {
             let status = xhr.status;
-            if (status === 200) {
+            if (status === 201) {
                 resolve(xhr.response);
             } else {
                 reject(status);
@@ -46,14 +49,14 @@ function saveJson(url, data) {
     });
 };
 
-function getValue(elem, elem2) {
+function getValue(titleFormValue, authorFormValue) {
     let obj = {};
-    obj.title = elem.value;
-    obj.author = elem2.value;
+    obj.title = titleFormValue.value;
+    obj.author = authorFormValue.value;
     return obj;
-}
+};
+
 function render(arr, ell) {
-    ell.innerHTML = null;
     for (let item of arr) {
         let mainDiv = document.createElement('div');
         mainDiv.classList.add('main__block');
@@ -66,14 +69,11 @@ function addTask(obj, ell) {
     let mainDiv = document.createElement('div');
     mainDiv.classList.add('main__block');
     mainDiv.innerHTML = `<div>Title: ${obj.title}</div><div>Author: ${obj.author}</div>`
-    ell.append(mainDiv);
-}
-/* getJson('http://localhost:3000/posts')
-    .then(result => render(result, mainElem))
-    .catch(err => console.log('Возникла ошибка:', err))
- */
+    ell.append(mainDiv)
+};
 
-formSubmit.addEventListener('click', () => {
+formSubmit.addEventListener('submit', (event) => {
+    event.preventDefault();
     saveJson('http://localhost:3000/posts', JSON.stringify(getValue(inputTitle, inputAuthor)))
         .then(getJson('http://localhost:3000/posts'))
             .then(result => addTask(result, mainElem))
